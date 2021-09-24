@@ -12,3 +12,6 @@ while True:
                 print("I am second player")
                 color = "orange"
                 first = False
+        f = open("./referee/move_file", 'w')
+        f.write("GroupX D 3")
+        f.close()

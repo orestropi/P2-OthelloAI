@@ -1,5 +1,31 @@
 import os.path
-import referee
+import sys
+
+from .referee import Board
+
+from referee.Game import Game
+from Util import TerminalColor
+
+
+board = [PieceColor.NONE] * 64
+
+
+def __init__(self):
+    """
+    Initialize Othello board
+    """
+    # Setup initial board state
+    self.set_piece(5, 'D', PieceColor.BLUE)
+    self.set_piece(5, 'E', PieceColor.ORANGE)
+    self.set_piece(4, 'D', PieceColor.ORANGE)
+    self.set_piece(4, 'E', PieceColor.BLUE)
+
+    game = Game("str1", "str2")
+
+
+if not Game.board.is_full():
+    print("I am not full")
+
 
 first = True #flag used to get the color of the player
 
@@ -20,3 +46,7 @@ while True:
         f = open("./referee/move_file", 'w') #open the move file to make a move
         f.write("GroupX D 3") #write the desired move in the move file
         f.close() #close the file until need to wirte to it again
+
+
+
+

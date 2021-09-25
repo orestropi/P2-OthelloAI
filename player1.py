@@ -1,4 +1,5 @@
 import os.path
+import referee
 
 first = True #flag used to get the color of the player
 

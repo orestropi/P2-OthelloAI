@@ -1,27 +1,49 @@
 import os.path
 import sys
 
-from Board import PieceColor
+from Board import PieceColor, Board
 from referee.Game import Game
 
-board = [PieceColor.NONE] * 64
 
-
-def __init__(self):
+def get_valid_moves(board: Board, color: PieceColor) -> bool:
     """
-    Initialize Othello board
+    Check if there exists a valid move for the given color
+    :param color: PieceColor
+    :return: list of valid moves, empty list if not
     """
-    # Setup initial board state
-    self.set_piece(5, 'D', PieceColor.BLUE)
-    self.set_piece(5, 'E', PieceColor.ORANGE)
-    self.set_piece(4, 'D', PieceColor.ORANGE)
-    self.set_piece(4, 'E', PieceColor.BLUE)
+    moves = []
+    for row in range(8):
+        for col in range(8):
+            piece = Board._get_piece(board, row, col)
+            print(board.board[row * 8 + col])
+            print(row, col)
+            print(len(board.board))
+            if (piece == PieceColor.NONE) and len(Board._get_enveloped_pieces(board, row, col, color)) > 0:
+                moves.append([row,col])
+    print(moves)
+    return moves
 
-    game = Game("str1", "str2")
 
+#board = [PieceColor.NONE] * 64
 
-if not Game.board.is_full():
-    print("I am not full")
+game = Game("p1", "p2")
+print("Initial Board:\n{b}\n".format(b=game.board))
+
+# def __init__(self):
+#     """
+#     Initialize Othello board
+#     """
+#     # Setup initial board state
+#     self.set_piece(5, 'D', PieceColor.BLUE)
+#     self.set_piece(5, 'E', PieceColor.ORANGE)
+#     self.set_piece(4, 'D', PieceColor.ORANGE)
+#     self.set_piece(4, 'E', PieceColor.BLUE)
+#
+# game = Game("str1", "str2")
+#
+#
+# if not game.board.is_full():
+#     print("I am not full")
 
 
 first = True #flag used to get the color of the player
@@ -40,6 +62,15 @@ while True:
                 print("I am second player")
                 color = "orange"
                 first = False
+
+        moves = get_valid_moves(game.board, color)
+        #first check if board is full -- do we need to do this??
+        #then check if there are any possible moves
+
+        #get possible moves and put those coordinates in list
+        #get the number of pieces it would change for each possible move and store in array
+        #sort this list and use the move with the most possible moves
+
         f = open("./referee/move_file", 'w') #open the move file to make a move
         f.write("GroupX D 3") #write the desired move in the move file
         f.close() #close the file until need to wirte to it again

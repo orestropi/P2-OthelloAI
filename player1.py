@@ -1,11 +1,8 @@
 import os.path
 import sys
 
-from .referee import Board
-
+from Board import PieceColor
 from referee.Game import Game
-from Util import TerminalColor
-
 
 board = [PieceColor.NONE] * 64
 

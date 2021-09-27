@@ -86,7 +86,7 @@ def main():
 
         # Sleep for 10 seconds checking if move_file has been modified every 50 milliseconds
         modified = False
-        for i in range(2000):
+        for i in range(200):
             time.sleep(0.05)
 
             if os.path.getmtime("move_file") > mtime:

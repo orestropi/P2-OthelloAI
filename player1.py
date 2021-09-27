@@ -15,13 +15,16 @@ def get_valid_moves(board: Board, color: PieceColor) -> bool:
     for row in range(8):
         for col in range(8):
             piece = Board._get_piece(board, row, col)
-            print(board.board[row * 8 + col])
-            print(row, col)
-            print(len(board.board))
+            #print(board.board[row * 8 + col])
+            #print(row, col)
+            #print(len(board.board))
             if (piece == PieceColor.NONE) and len(Board._get_enveloped_pieces(board, row, col, color)) > 0:
+
                 moves.append([row,col])
     print(moves)
     return moves
+
+
 
 
 #board = [PieceColor.NONE] * 64
@@ -55,19 +58,20 @@ while True:
             #if nothing in the move file, the player's color is blue
             if os.stat("./referee/move_file").st_size==0:
                 print("I am first player")
-                color = "blue"
+                color = PieceColor.BLUE
                 first = False #set flag to false so do not check the color again
             #if there is already a line in the move file and the flag is still true, the player's color is orange
             else:
                 print("I am second player")
-                color = "orange"
+                color = PieceColor.ORANGE
                 first = False
 
-        moves = get_valid_moves(game.board, color)
+
         #first check if board is full -- do we need to do this??
         #then check if there are any possible moves
 
         #get possible moves and put those coordinates in list
+        moves = get_valid_moves(game.board, color)
         #get the number of pieces it would change for each possible move and store in array
         #sort this list and use the move with the most possible moves
 

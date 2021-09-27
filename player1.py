@@ -1,7 +1,7 @@
 import os.path
 import sys
 
-from Board import PieceColor, Board
+from referee.Board import PieceColor, Board
 from referee.Game import Game
 
 
@@ -73,6 +73,11 @@ while True:
         #get possible moves and put those coordinates in list
         moves = get_valid_moves(game.board, color)
         #get the number of pieces it would change for each possible move and store in array
+        rankedMoves = []
+        for index in range(moves):
+            changedMoves = Board._get_enveloped_pieces(game.board, moves[index][0], moves[index][1], color)
+            numChanged = len(changedMoves)
+
         #sort this list and use the move with the most possible moves
 
         f = open("./referee/move_file", 'w') #open the move file to make a move

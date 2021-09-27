@@ -25,8 +25,6 @@ def get_valid_moves(board: Board, color: PieceColor) -> bool:
     return moves
 
 
-
-
 #board = [PieceColor.NONE] * 64
 
 game = Game("p1", "p2")
@@ -69,19 +67,38 @@ while True:
 
         #first check if board is full -- do we need to do this??
         #then check if there are any possible moves
-
+        print(Board.has_valid_move(game.board, color))
         #get possible moves and put those coordinates in list
         moves = get_valid_moves(game.board, color)
         #get the number of pieces it would change for each possible move and store in array
         rankedMoves = []
-        for index in range(moves):
+        for index in range(len(moves)):
             changedMoves = Board._get_enveloped_pieces(game.board, moves[index][0], moves[index][1], color)
             numChanged = len(changedMoves)
-
+            rankedMoves.append([moves[index][0], moves[index][1], numChanged])
+        rankedMoves.sort(key=lambda tup: tup[2], reverse=True)
+        print(rankedMoves)
         #sort this list and use the move with the most possible moves
-
+        topMove = rankedMoves[0]
+        row = topMove[0]
+        if topMove[1] == 0:
+            letter = "A"
+        elif topMove[1] == 1:
+            letter = "B"
+        elif topMove[1] == 2:
+            letter = "C"
+        elif topMove[1] == 3:
+            letter = "D"
+        elif topMove[1] == 4:
+            letter = "E"
+        elif topMove[1] == 5:
+            letter = "F"
+        elif topMove[1] == 6:
+            letter = "G"
+        elif topMove[1] == 7:
+            letter = "H"
         f = open("./referee/move_file", 'w') #open the move file to make a move
-        f.write("GroupX D 3") #write the desired move in the move file
+        f.write("GroupX", letter, str(row))#write the desired move in the move file
         f.close() #close the file until need to wirte to it again
 
 

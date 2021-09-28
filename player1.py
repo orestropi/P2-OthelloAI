@@ -56,12 +56,14 @@ while True:
                 print("I am first player")
                 color = "blue"
                 color = PieceColor.BLUE
+                oColor = PieceColor.ORANGE
                 first = False #set flag to false so do not check the color again
             #if there is already a line in the move file and the flag is still true, the player's color is orange
             else:
                 print("I am second player")
                 color = "orange"
                 color = PieceColor.ORANGE
+                oColor = PieceColor.BLUE
                 first = False
 
 
@@ -70,11 +72,11 @@ while True:
         #then check if there are any possible moves
 
         #get possible moves and put those coordinates in list
-        moves = get_valid_moves(game.board, color)
+        moves = get_valid_moves(game.board, oColor)
         # get the number of pieces it would change for each possible move and store in array
         rankedMoves = []
         for index in range(len(moves)):
-            changedMoves = Board._get_enveloped_pieces(game.board, moves[index][0], moves[index][1], color)
+            changedMoves = Board._get_enveloped_pieces(game.board, moves[index][0], moves[index][1], oColor)
             numChanged = len(changedMoves)
 
             rankedMoves.append([moves[index][0], moves[index][1], numChanged])
@@ -102,5 +104,5 @@ while True:
             letter = "H"
         f = open("./referee/move_file", 'w')  # open the move file to make a move
         # write the desired move in the move file
-        f.write("GroupX", str(topMove[1]), str(row))  # write the desired move in the move file
+        f.write("GroupX " + letter +  " " + str(row+1))  # write the desired move in the move file
         f.close()  # close the file until need to wirte to it again

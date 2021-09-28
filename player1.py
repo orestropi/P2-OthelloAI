@@ -2,7 +2,9 @@ import os.path
 import sys
 from Board import PieceColor, Board
 from referee.Game import Game
-def get_valid_moves(board: Board, color: PieceColor) -> bool:
+
+
+def get_valid_moves(board: Board, color: PieceColor) -> list:
     """
     Check if there exists a valid move for the given color
     :param color: PieceColor
@@ -25,7 +27,49 @@ def get_valid_moves(board: Board, color: PieceColor) -> bool:
     return moves
 
 
+'''input: the board, the player color that is going next
+result: positive float means better for orange, negative float means better for blue'''
 
+
+def eval_func(board: Board, colorE: PieceColor) -> float:
+    evalF = 0
+    numF = 0
+    """
+    Get opponent of given player
+    :param player: Board currently being played
+    :return: evaluation for current position
+    """
+    for rowE in range(8):
+        for col in range(8):
+            piece = Board._get_piece(board, rowE, col)
+            '''factor 1: number of pieces for each color are a consideration to winning an othello game'''
+            if piece == PieceColor.ORANGE:
+                evalF += .02
+            if piece == PieceColor.BLUE:
+                evalF -= .02
+            '''factor 2: corner pieces are crucial to winning an  othello game'''
+            if (piece == PieceColor.ORANGE) and (((rowE == 1) and (col == 1)) or
+                                                 ((rowE == 8) and (col == 1)) or
+                                                 ((rowE == 1) and (col == 8)) or
+                                                 ((rowE == 8) and (col == 8))):
+                evalF += 5
+            if (piece == PieceColor.BLUE) and (((rowE == 1) and (col == 1)) or
+                                               ((rowE == 8) and (col == 1)) or
+                                               ((rowE == 1) and (col == 8)) or
+                                               ((rowE == 8) and (col == 8))):
+                evalF -= 5
+            if (piece == PieceColor.NONE):
+                numF += 1
+
+    numOfPieces = 64 - numF
+
+    '''factor 3: number of available moves are important to winning an othello game'''
+    if colorE == PieceColor.ORANGE:
+        evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+    if colorE == PieceColor.BLUE:
+        evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+
+    return evalF
 
 #board = [PieceColor.NONE] * 64
 

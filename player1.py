@@ -114,6 +114,7 @@ while True:
         #then check if there are any possible moves
 
         #get possible moves and put those coordinates in list
+        print(eval_func(game.board, color))
         moves = get_valid_moves(game.board, color)
         # get the number of pieces it would change for each possible move and store in array
         rankedMoves = []

@@ -34,6 +34,7 @@ result: positive float means better for orange, negative float means better for 
 def eval_func(board: Board, colorE: PieceColor) -> float:
     evalF = 0
     numF = 0
+
     """
     Get opponent of given player
     :param player: Board currently being played
@@ -58,7 +59,7 @@ def eval_func(board: Board, colorE: PieceColor) -> float:
                                                ((rowE == 1) and (col == 8)) or
                                                ((rowE == 8) and (col == 8))):
                 evalF -= 5
-            if (piece == PieceColor.NONE):
+            if piece == PieceColor.NONE:
                 numF += 1
 
     numOfPieces = 64 - numF

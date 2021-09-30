@@ -89,7 +89,7 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 first = True  # flag used to get the color of the player
 # while the game is being played
 while True:
-   while os.path.isfile("./referee/Player2.go"):  # get the file the referee made
+   while os.path.isfile("./referee/player2.py.go"):  # get the file the referee made
        if first:
            # if nothing in the move file, the player's color is blue
            if os.stat("./referee/move_file").st_size == 0:
@@ -148,6 +148,7 @@ while True:
        rankedMoves.sort(key=lambda tup: tup[2], reverse=True)
        print("Ranked Moves:", rankedMoves)
        # sort this list and use the move with the most possible moves
+       print("Initial Board:\n{b}\n".format(b=game.board))
 
        topMove = rankedMoves[0]
        row = topMove[0]

@@ -3,6 +3,61 @@ import sys
 from Board import PieceColor, Board, transform_coords
 from referee.Game import Game
 import time
+import copy
+
+depth = 0
+maxPlayer = True
+goalDepth = 1
+bestMove = []
+
+def copyBoard(board: Board) -> Board:
+    game1 = Game("p4", "p5")
+    for x in range(8):
+        for y in range(8):
+            if(board._get_piece(x, y) == PieceColor.BLUE):
+                game1.board._set_piece(x, y, PieceColor.BLUE)
+            if(board._get_piece(x, y) == PieceColor.ORANGE):
+                game1.board._set_piece(x, y, PieceColor.ORANGE)
+    return game1.board
+
+def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor) -> float:
+    global bestMove
+    if maxPlayer:
+        maxValue = -99999
+        listOfMoves = get_valid_moves(board, color)
+        if depth == goalDepth:
+            return eval_func(board, color)
+        else:
+            for move in range(len(listOfMoves)):
+                currentMove = listOfMoves[move]
+                (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+                board.set_piece(rowC, colC, color)
+                newBoard =  copy.deepcopy(board)
+                print('newBoard Position: row', rowC, 'col', colC, 'Board:')
+                print(newBoard)
+                result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
+                if maxValue < result:
+                    print(bestMove)
+                    bestMove = [rowC, colC]
+                maxValue = max(maxValue, result)
+            return maxValue
+    else:
+        minValue = 99999
+        listOfMoves = get_valid_moves(board, color)
+        if depth == goalDepth:
+            return eval_func(board, color)
+        else:
+            for move in range(len(listOfMoves)):
+                currentMove = listOfMoves[move]
+                (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+                board.set_piece(rowC, colC, color)
+                newBoard =  copy.deepcopy(board)
+                result = min_max_algo(newBoard, Ocolor, depth + 1, True, color)
+                if minValue > result:
+                    print(bestMove)
+                    bestMove = [rowC, colC]
+                minValue = min(minValue, result)
+        return minValue
 
 
 def get_valid_moves(board: Board, color: PieceColor) -> list:
@@ -24,7 +79,8 @@ def get_valid_moves(board: Board, color: PieceColor) -> list:
            if (piece == PieceColor.NONE) and len(Board._get_enveloped_pieces(board, row, col, color)) > 0:
 
                moves.append([row,col])
-   print(moves)
+
+   print('valid moves:', moves)
    return moves
 
 def eval_func(board: Board, colorE: PieceColor) -> float:
@@ -90,7 +146,7 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 first = True #flag used to get the color of the player
 #while the game is being played
 while True:
-   while os.path.isfile("./referee/Player1.go"): #get the file the referee made
+   while os.path.isfile("./referee/player1.py.go"): #get the file the referee made
        if first:
            #if nothing in the move file, the player's color is blue
            if os.stat("./referee/move_file").st_size==0:
@@ -140,27 +196,16 @@ while True:
        #then check if there are any possible moves
 
        #get possible moves and put those coordinates in list
-       moves = get_valid_moves(game.board, color)
-       # get the number of pieces it would change for each possible move and store in array
-       rankedMoves = []
-       for index in range(len(moves)):
-           changedMoves = Board._get_enveloped_pieces(game.board, moves[index][0], moves[index][1], color)
-           numChanged = len(changedMoves)
+       newBoard = copy.deepcopy(game.board)
+       min_max_algo(newBoard, color, 0, True, OColor)
+       #print("Initial Board:\n{b}\n".format(b=game.board))
 
-           rankedMoves.append([moves[index][0], moves[index][1], numChanged])
-       rankedMoves.sort(key=lambda tup: tup[2], reverse=True)
-       print("Ranked Moves:", rankedMoves)
-       # sort this list and use the move with the most possible moves
-
-       topMove = rankedMoves[0]
-       row = topMove[0]
-       (rowC, colC) = transform_coords(row, topMove[1])
        f = open("./referee/move_file", 'a')  # open the move file to make a move
        # write the desired move in the move file
        #print("GroupX ", str(topMove[1]), " ", str(row))
        #f.write("GroupX E 3")
-       stringToWrite = ('Player1 ' + str(colC) + " " + str(rowC)+ "\n")
+       stringToWrite = ('Player1 ' + str(bestMove[1]) + " " + str(bestMove[0])+ "\n")
        f.write(stringToWrite)  # write the desired move in the move file
        f.close()  # close the file until need to wirte to it again
-       game.board.set_piece(rowC, colC, color) #update our board
+       game.board.set_piece(bestMove[0], bestMove[1], color) #update our board
        time.sleep(1);

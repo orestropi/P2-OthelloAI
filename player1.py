@@ -7,18 +7,9 @@ import copy
 
 depth = 0
 maxPlayer = True
-goalDepth = 1
+goalDepth = 2
 bestMove = []
 
-def copyBoard(board: Board) -> Board:
-    game1 = Game("p4", "p5")
-    for x in range(8):
-        for y in range(8):
-            if(board._get_piece(x, y) == PieceColor.BLUE):
-                game1.board._set_piece(x, y, PieceColor.BLUE)
-            if(board._get_piece(x, y) == PieceColor.ORANGE):
-                game1.board._set_piece(x, y, PieceColor.ORANGE)
-    return game1.board
 
 def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor) -> float:
     global bestMove
@@ -31,8 +22,8 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
             for move in range(len(listOfMoves)):
                 currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-                board.set_piece(rowC, colC, color)
                 newBoard =  copy.deepcopy(board)
+                newBoard.set_piece(rowC, colC, color)
                 print('newBoard Position: row', rowC, 'col', colC, 'Board:')
                 print(newBoard)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
@@ -50,8 +41,8 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
             for move in range(len(listOfMoves)):
                 currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-                board.set_piece(rowC, colC, color)
                 newBoard =  copy.deepcopy(board)
+                newBoard.set_piece(rowC, colC, color)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, True, color)
                 if minValue > result:
                     print(bestMove)

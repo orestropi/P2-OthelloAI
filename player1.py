@@ -24,7 +24,7 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 newBoard =  copy.deepcopy(board)
                 newBoard.set_piece(rowC, colC, color)
-                print('newBoard Position: row', rowC, 'col', colC, 'Board:')
+                print('newBoard Position(max): row', rowC, 'col', colC, 'Board:')
                 print(newBoard)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
                 if maxValue < result:
@@ -43,6 +43,8 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 newBoard =  copy.deepcopy(board)
                 newBoard.set_piece(rowC, colC, color)
+                print('newBoard Position(min): row', rowC, 'col', colC, 'Board:')
+                print(newBoard)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, True, color)
                 if minValue > result:
                     print(bestMove)
@@ -189,7 +191,7 @@ while True:
        #get possible moves and put those coordinates in list
        newBoard = copy.deepcopy(game.board)
        min_max_algo(newBoard, color, 0, True, OColor)
-       #print("Initial Board:\n{b}\n".format(b=game.board))
+       print("Initial Board:\n{b}\n".format(b=game.board))
 
        f = open("./referee/move_file", 'a')  # open the move file to make a move
        # write the desired move in the move file

@@ -1,8 +1,9 @@
 import os.path
 import sys
-from Board import PieceColor, Board
+
+from referee.Board import PieceColor, Board
 from referee.Game import Game
-import time
+
 
 def get_valid_moves(board: Board, color: PieceColor) -> bool:
     """
@@ -14,9 +15,6 @@ def get_valid_moves(board: Board, color: PieceColor) -> bool:
     for row in range(8):
         for col in range(8):
             piece = Board._get_piece(board, row, col)
-            # print(board.board[row * 8 + col])
-            # print(row, col)
-            # print(len(board.board))
             #print(board.board[row * 8 + col])
             #print(row, col)
             #print(len(board.board))
@@ -27,12 +25,11 @@ def get_valid_moves(board: Board, color: PieceColor) -> bool:
     return moves
 
 
-
-
 #board = [PieceColor.NONE] * 64
 
-game = Game("p1", "p2")
+game = Game('p1', 'p2')
 print("Initial Board:\n{b}\n".format(b=game.board))
+
 # def __init__(self):
 #     """
 #     Initialize Othello board
@@ -48,92 +45,61 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 #
 # if not game.board.is_full():
 #     print("I am not full")
+
+
 first = True #flag used to get the color of the player
+
 #while the game is being played
 while True:
-    while os.path.isfile("./referee/player2.py.go"): #get the file the referee made
+    while os.path.isfile("./referee/player1.py.go"): #get the file the referee made
+        #there is a function get_color i think we can use
         if first:
             #if nothing in the move file, the player's color is blue
             if os.stat("./referee/move_file").st_size==0:
                 print("I am first player")
                 color = PieceColor.BLUE
-                OColor = PieceColor.ORANGE
                 first = False #set flag to false so do not check the color again
             #if there is already a line in the move file and the flag is still true, the player's color is orange
             else:
                 print("I am second player")
                 color = PieceColor.ORANGE
-                OColor = PieceColor.BLUE
                 first = False
 
 
-        #we first need to update the board by reading move file
-        mtime = os.path.getmtime("./referee/move_file")
-        modified = False
-
-        if os.path.getmtime("./referee/move_file") > mtime:
-            modified = True
-            break
-
-        if modified:
-            with open("./referee/move_file", "r") as fp:
-                # Get last non-empty line from file
-                line = ""
-                for next_line in fp.readlines():
-                    if next_line.isspace():
-                        break
-                    else:
-                        line = next_line
-
-                # Tokenize move
-                tokens = line.split()
-                group_name = tokens[0]
-                col = tokens[1]
-                row = tokens[2]
-
-                game.board.Board.set_piece(row, col, OColor)  # there are two set_piece()
-
-            fp.close()
-
         #first check if board is full -- do we need to do this??
         #then check if there are any possible moves
-
+        print(Board.get_counts(game.board))
+        print(Board.has_valid_move(game.board, color))
         #get possible moves and put those coordinates in list
         moves = get_valid_moves(game.board, color)
-        # get the number of pieces it would change for each possible move and store in array
+        #get the number of pieces it would change for each possible move and store in array
         rankedMoves = []
         for index in range(len(moves)):
             changedMoves = Board._get_enveloped_pieces(game.board, moves[index][0], moves[index][1], color)
             numChanged = len(changedMoves)
-
             rankedMoves.append([moves[index][0], moves[index][1], numChanged])
         rankedMoves.sort(key=lambda tup: tup[2], reverse=True)
-        print("Ranked Moves:", rankedMoves)
-        # sort this list and use the move with the most possible moves
-
+        print(rankedMoves)
+        #sort this list and use the move with the most possible moves
         topMove = rankedMoves[0]
         row = topMove[0]
-        if topMove[1] == 1:
+        if topMove[1] == 0:
             letter = "A"
-        elif topMove[1] == 2:
+        elif topMove[1] == 1:
             letter = "B"
-        elif topMove[1] == 3:
+        elif topMove[1] == 2:
             letter = "C"
-        elif topMove[1] == 4:
+        elif topMove[1] == 3:
             letter = "D"
-        elif topMove[1] == 5:
+        elif topMove[1] == 4:
             letter = "E"
-        elif topMove[1] == 6:
+        elif topMove[1] == 5:
             letter = "F"
-        elif topMove[1] == 7:
+        elif topMove[1] == 6:
             letter = "G"
-        elif topMove[1] == 8:
+        elif topMove[1] == 7:
             letter = "H"
-        f = open("./referee/move_file", 'w')  # open the move file to make a move
-        # write the desired move in the move file
-        #print("GroupX ", str(topMove[1]), " ", str(row))
-        #f.write("GroupX E 3")
-        stringToWrite = ('GroupX ' + letter + " " + str(row +1))
-        f.write(stringToWrite)  # write the desired move in the move file
-        f.close()  # close the file until need to wirte to it again
-        game.board.set_piece(row + 1, letter, color)  # update our board
+        f = open("./referee/move_file", 'w') #open the move file to make a move
+        f.write("GroupX", letter, str(row))#write the desired move in the move file
+        f.close() #close the file until need to wirte to it again
+

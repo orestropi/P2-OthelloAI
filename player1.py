@@ -1,7 +1,8 @@
 import os.path
 import sys
-from Board import PieceColor, Board
+from Board import PieceColor, Board, transform_coords
 from referee.Game import Game
+import time
 
 
 def get_valid_moves(board: Board, color: PieceColor) -> list:
@@ -64,13 +65,6 @@ def eval_func(board: Board, colorE: PieceColor) -> float:
 
     numOfPieces = 64 - numF
 
-    '''factor 3: number of available moves are important to winning an othello game'''
-    if colorE == PieceColor.ORANGE:
-        evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
-    if colorE == PieceColor.BLUE:
-        evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
-
-    return evalF
 
 #board = [PieceColor.NONE] * 64
 
@@ -94,28 +88,56 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 first = True #flag used to get the color of the player
 #while the game is being played
 while True:
-    while os.path.isfile("./referee/player1.py.go"): #get the file the referee made
+    while os.path.isfile("./referee/Player1.go"): #get the file the referee made
         if first:
             #if nothing in the move file, the player's color is blue
             if os.stat("./referee/move_file").st_size==0:
                 print("I am first player")
-                color = "blue"
                 color = PieceColor.BLUE
+                OColor = PieceColor.ORANGE
                 first = False #set flag to false so do not check the color again
             #if there is already a line in the move file and the flag is still true, the player's color is orange
             else:
                 print("I am second player")
-                color = "orange"
                 color = PieceColor.ORANGE
+                OColor = PieceColor.BLUE
                 first = False
 
 
+        #we first need to update the board by reading move file
+        #mtime = os.path.getmtime("./referee/move_file")
+        #modified = False
+
+        #if os.path.getmtime("./referee/move_file") > mtime:
+            #modified = True
+            #break
+
+        #if modified:
+        with open("./referee/move_file", "r") as fp:
+                # Get last non-empty line from file
+            line = ""
+            for next_line in fp.readlines():
+                if next_line.isspace():
+                    break
+                else:
+                    line = next_line
+
+                # Tokenize move
+            if not line=="":
+                tokens = line.split()
+                group_name = tokens[0]
+                col = tokens[1]
+                row = tokens[2]
+
+                game.board.set_piece(int(row), str(col), OColor) #updates board
+
+
+        fp.close()
 
         #first check if board is full -- do we need to do this??
         #then check if there are any possible moves
 
         #get possible moves and put those coordinates in list
-        print(eval_func(game.board, color))
         moves = get_valid_moves(game.board, color)
         # get the number of pieces it would change for each possible move and store in array
         rankedMoves = []
@@ -130,23 +152,14 @@ while True:
 
         topMove = rankedMoves[0]
         row = topMove[0]
-        if topMove[1] == 0:
-            letter = "A"
-        elif topMove[1] == 1:
-            letter = "B"
-        elif topMove[1] == 2:
-            letter = "C"
-        elif topMove[1] == 3:
-            letter = "D"
-        elif topMove[1] == 4:
-            letter = "E"
-        elif topMove[1] == 5:
-            letter = "F"
-        elif topMove[1] == 6:
-            letter = "G"
-        elif topMove[1] == 7:
-            letter = "H"
-        f = open("./referee/move_file", 'w')  # open the move file to make a move
+        (rowC, colC) = transform_coords(row, topMove[1])
+        f = open("./referee/move_file", 'a')  # open the move file to make a move
         # write the desired move in the move file
-        f.write("GroupX", str(topMove[1]), str(row))  # write the desired move in the move file
+        #print("GroupX ", str(topMove[1]), " ", str(row))
+        #f.write("GroupX E 3")
+        stringToWrite = ('Player1 ' + str(colC) + " " + str(rowC)+ "\n")
+        f.write(stringToWrite)  # write the desired move in the move file
         f.close()  # close the file until need to wirte to it again
+        game.board.set_piece(rowC, colC, color) #update our board
+        time.sleep(1);
+

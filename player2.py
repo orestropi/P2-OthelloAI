@@ -1,8 +1,9 @@
 import os.path
 import sys
-from Board import PieceColor, Board
+from Board import PieceColor, Board, transform_coords
 from referee.Game import Game
 import time
+
 
 def get_valid_moves(board: Board, color: PieceColor) -> bool:
     """
@@ -17,19 +18,16 @@ def get_valid_moves(board: Board, color: PieceColor) -> bool:
             # print(board.board[row * 8 + col])
             # print(row, col)
             # print(len(board.board))
-            #print(board.board[row * 8 + col])
-            #print(row, col)
-            #print(len(board.board))
+            # print(board.board[row * 8 + col])
+            # print(row, col)
+            # print(len(board.board))
             if (piece == PieceColor.NONE) and len(Board._get_enveloped_pieces(board, row, col, color)) > 0:
-
-                moves.append([row,col])
+                moves.append([row, col])
     print(moves)
     return moves
 
 
-
-
-#board = [PieceColor.NONE] * 64
+# board = [PieceColor.NONE] * 64
 
 game = Game("p1", "p2")
 print("Initial Board:\n{b}\n".format(b=game.board))
@@ -48,57 +46,57 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 #
 # if not game.board.is_full():
 #     print("I am not full")
-first = True #flag used to get the color of the player
-#while the game is being played
+first = True  # flag used to get the color of the player
+# while the game is being played
 while True:
-    while os.path.isfile("./referee/player2.py.go"): #get the file the referee made
+    while os.path.isfile("./referee/Player2.go"):  # get the file the referee made
         if first:
-            #if nothing in the move file, the player's color is blue
-            if os.stat("./referee/move_file").st_size==0:
+            # if nothing in the move file, the player's color is blue
+            if os.stat("./referee/move_file").st_size == 0:
                 print("I am first player")
                 color = PieceColor.BLUE
                 OColor = PieceColor.ORANGE
-                first = False #set flag to false so do not check the color again
-            #if there is already a line in the move file and the flag is still true, the player's color is orange
+                first = False  # set flag to false so do not check the color again
+            # if there is already a line in the move file and the flag is still true, the player's color is orange
             else:
                 print("I am second player")
                 color = PieceColor.ORANGE
                 OColor = PieceColor.BLUE
                 first = False
 
+        # we first need to update the board by reading move file
+        # mtime = os.path.getmtime("./referee/move_file")
+        # modified = False
 
-        #we first need to update the board by reading move file
-        mtime = os.path.getmtime("./referee/move_file")
-        modified = False
+        # if os.path.getmtime("./referee/move_file") > mtime:
+        # modified = True
+        # break
 
-        if os.path.getmtime("./referee/move_file") > mtime:
-            modified = True
-            break
-
-        if modified:
-            with open("./referee/move_file", "r") as fp:
-                # Get last non-empty line from file
-                line = ""
-                for next_line in fp.readlines():
-                    if next_line.isspace():
-                        break
-                    else:
-                        line = next_line
+        # if modified:
+        with open("./referee/move_file", "r") as fp:
+            # Get last non-empty line from file
+            line = ""
+            for next_line in fp.readlines():
+                if next_line.isspace():
+                    break
+                else:
+                    line = next_line
 
                 # Tokenize move
+            if not line == "":
                 tokens = line.split()
                 group_name = tokens[0]
                 col = tokens[1]
                 row = tokens[2]
 
-                game.board.Board.set_piece(row, col, OColor)  # there are two set_piece()
+                game.board.set_piece(int(row), str(col), OColor)  # updates board
 
-            fp.close()
+        fp.close()
 
-        #first check if board is full -- do we need to do this??
-        #then check if there are any possible moves
+        # first check if board is full -- do we need to do this??
+        # then check if there are any possible moves
 
-        #get possible moves and put those coordinates in list
+        # get possible moves and put those coordinates in list
         moves = get_valid_moves(game.board, color)
         # get the number of pieces it would change for each possible move and store in array
         rankedMoves = []
@@ -113,27 +111,13 @@ while True:
 
         topMove = rankedMoves[0]
         row = topMove[0]
-        if topMove[1] == 1:
-            letter = "A"
-        elif topMove[1] == 2:
-            letter = "B"
-        elif topMove[1] == 3:
-            letter = "C"
-        elif topMove[1] == 4:
-            letter = "D"
-        elif topMove[1] == 5:
-            letter = "E"
-        elif topMove[1] == 6:
-            letter = "F"
-        elif topMove[1] == 7:
-            letter = "G"
-        elif topMove[1] == 8:
-            letter = "H"
-        f = open("./referee/move_file", 'w')  # open the move file to make a move
+        (rowC, colC) = transform_coords(row, topMove[1])
+        f = open("./referee/move_file", 'a')  # open the move file to make a move
         # write the desired move in the move file
-        #print("GroupX ", str(topMove[1]), " ", str(row))
-        #f.write("GroupX E 3")
-        stringToWrite = ('GroupX ' + letter + " " + str(row +1))
+        # print("GroupX ", str(topMove[1]), " ", str(row))
+        # f.write("GroupX E 3")
+        stringToWrite = ('Player2 ' + str(colC) + " " + str(rowC)+ "\n")
         f.write(stringToWrite)  # write the desired move in the move file
         f.close()  # close the file until need to wirte to it again
-        game.board.set_piece(row + 1, letter, color)  # update our board
+        game.board.set_piece(rowC, colC, color)  # update our board
+        time.sleep(1);

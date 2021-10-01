@@ -1,5 +1,5 @@
 """
-This file comprises a portion of the source code of the Othello referee implementation for the WPI course 'CS 4341:
+This file comprises a portion of the source code of the Othello othello_referee_v6 implementation for the WPI course 'CS 4341:
 Introduction to Artificial Intelligence' running A term of the 2021-2022 academic year.
 
 File:   Board.py

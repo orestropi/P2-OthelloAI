@@ -1,5 +1,5 @@
 """
-This file comprises a portion of the source code of the Othello referee implementation for the WPI course 'CS 4341:
+This file comprises a portion of the source code of the Othello othello_referee_v6 implementation for the WPI course 'CS 4341:
 Introduction to Artificial Intelligence' running A term of the 2021-2022 academic year.
 
 File:   Board.py
@@ -79,10 +79,10 @@ class Board:
         """
         # Setup initial board state
         self.board = [PieceColor.NONE] * 64
-        self.set_piece(5, 'D', PieceColor.BLUE)
-        self.set_piece(5, 'E', PieceColor.ORANGE)
-        self.set_piece(4, 'D', PieceColor.ORANGE)
-        self.set_piece(4, 'E', PieceColor.BLUE)
+        self.set_piece(5, 'D', PieceColor.ORANGE)
+        self.set_piece(5, 'E', PieceColor.BLUE)
+        self.set_piece(4, 'D', PieceColor.BLUE)
+        self.set_piece(4, 'E', PieceColor.ORANGE)
 
     def _get_piece(self, row: int, col: int) -> PieceColor:
         """

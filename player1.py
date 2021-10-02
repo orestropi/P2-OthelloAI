@@ -16,15 +16,22 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
     if maxPlayer:
         maxValue = -99999
         listOfMoves = get_valid_moves(board, color)
+        newlistOfMoves  = copy.deepcopy(listOfMoves)
+        print('This is our max board:')
+        print(board)
+        print('This is the depth:', depth)
+        print('This is its valid moves:', newlistOfMoves)
+        print('---------------------------------------')
+
         if depth == goalDepth:
             return eval_func(board, color)
         else:
-            for move in range(len(listOfMoves)):
-                currentMove = listOfMoves[move]
+            for move in range(len(newlistOfMoves)):
+                currentMove = newlistOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 newBoard =  copy.deepcopy(board)
                 newBoard.set_piece(rowC, colC, color)
-                print('newBoard Position(max): row', rowC, 'col', colC, 'Board:')
+                print('newBoard Position(max): row', rowC, 'col', colC, 'depth', depth, 'Board:')
                 print(newBoard)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
                 if maxValue < result:
@@ -35,11 +42,14 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
     else:
         minValue = 99999
         listOfMoves = get_valid_moves(board, color)
+        newlistOfMoves  = copy.deepcopy(listOfMoves)
+        print('This is our min board:', board)
+        print('This is its valid moves:', listOfMoves)
         if depth == goalDepth:
             return eval_func(board, color)
         else:
-            for move in range(len(listOfMoves)):
-                currentMove = listOfMoves[move]
+            for move in range(len(newlistOfMoves)):
+                currentMove = newlistOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 newBoard =  copy.deepcopy(board)
                 newBoard.set_piece(rowC, colC, color)
@@ -72,8 +82,6 @@ def get_valid_moves(board: Board, color: PieceColor) -> list:
            if (piece == PieceColor.NONE) and len(Board._get_enveloped_pieces(board, row, col, color)) > 0:
 
                moves.append([row,col])
-
-   print('valid moves:', moves)
    return moves
 
 def eval_func(board: Board, colorE: PieceColor) -> float:

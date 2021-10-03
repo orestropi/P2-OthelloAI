@@ -7,7 +7,7 @@ import copy
 
 depth = 0
 maxPlayer = True
-goalDepth = 2
+goalDepth = 3
 bestMove = []
 
 
@@ -16,25 +16,19 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
     if maxPlayer:
         maxValue = -99999
         listOfMoves = get_valid_moves(board, color)
-        newlistOfMoves  = copy.deepcopy(listOfMoves)
-        print('This is our max board:')
-        print(board)
-        print('This is the depth:', depth)
-        print('This is its valid moves:', newlistOfMoves)
-        print('---------------------------------------')
-
         if depth == goalDepth:
             return eval_func(board, color)
         else:
-            for move in range(len(newlistOfMoves)):
-                currentMove = newlistOfMoves[move]
+            for move in range(len(listOfMoves)):
+                currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+                board.set_piece(rowC, colC, color)
                 newBoard =  copy.deepcopy(board)
-                newBoard.set_piece(rowC, colC, color)
-                print('newBoard Position(max): row', rowC, 'col', colC, 'depth', depth, 'Board:')
+                board.set_piece(rowC, colC, PieceColor.NONE)
+                print('newBoard Position: row', rowC, 'col', colC, 'Board:')
                 print(newBoard)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
-                if maxValue < result:
+                if (maxValue < result) and depth == 0:
                     print(bestMove)
                     bestMove = [rowC, colC]
                 maxValue = max(maxValue, result)
@@ -42,21 +36,17 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
     else:
         minValue = 99999
         listOfMoves = get_valid_moves(board, color)
-        newlistOfMoves  = copy.deepcopy(listOfMoves)
-        print('This is our min board:', board)
-        print('This is its valid moves:', listOfMoves)
         if depth == goalDepth:
             return eval_func(board, color)
         else:
-            for move in range(len(newlistOfMoves)):
-                currentMove = newlistOfMoves[move]
+            for move in range(len(listOfMoves)):
+                currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+                board.set_piece(rowC, colC, color)
                 newBoard =  copy.deepcopy(board)
-                newBoard.set_piece(rowC, colC, color)
-                print('newBoard Position(min): row', rowC, 'col', colC, 'Board:')
-                print(newBoard)
+                board.set_piece(rowC, colC, PieceColor.NONE)
                 result = min_max_algo(newBoard, Ocolor, depth + 1, True, color)
-                if minValue > result:
+                if (minValue > result) and depth == 0:
                     print(bestMove)
                     bestMove = [rowC, colC]
                 minValue = min(minValue, result)

@@ -4,61 +4,75 @@ from Board import PieceColor, Board, transform_coords
 from referee.Game import Game
 import time
 import copy
+import queue
 
 depth = 0
 maxPlayer = True
 goalDepth = 2
 bestMove = []
 
+ # def min_max_queue(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor):
+ #     LIFOq = queue.LifoQueue()
+ #     while(depth )
 
-def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor) -> float:
+
+def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor, moves: list) -> float:
+    #Go through moves and make changes to original board
+    for move in range(len(moves)):
+        (rowC, colC) = transform_coords(moves[move][0], moves[move][1])
+        print("COLOR", moves[move][2])
+        cColor = moves[move][2]
+        board.set_piece(rowC, colC, cColor)
     global bestMove
     if maxPlayer:
+        #set value to really low
         maxValue = -99999
+        #get moves from new board
         listOfMoves = get_valid_moves(board, color)
-        newlistOfMoves  = copy.deepcopy(listOfMoves)
-        print('This is our max board:')
+        #restore board to original state
+        print('This is our max board: \n')
         print(board)
         print('This is the depth:', depth)
-        print('This is its valid moves:', newlistOfMoves)
+        print('This is its valid moves:', listOfMoves)
         print('---------------------------------------')
+        for move in range(len(moves)):
+            (rowC, colC) = transform_coords(moves[move][0], moves[move][1])
+            cColor = PieceColor.NONE
+            board.set_piece(rowC, colC, cColor)
 
         if depth == goalDepth:
             return eval_func(board, color)
         else:
-            for move in range(len(newlistOfMoves)):
-                currentMove = newlistOfMoves[move]
-                (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-                newBoard =  copy.deepcopy(board)
-                newBoard.set_piece(rowC, colC, color)
-                print('newBoard Position(max): row', rowC, 'col', colC, 'depth', depth, 'Board:')
-                print(newBoard)
-                result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
+            print("color max:", color)
+            for move in range(len(listOfMoves)):
+                print("num of moves: ", listOfMoves)
+                moves.append([listOfMoves[move][0], listOfMoves[move][1], color])
+                result = min_max_algo(board, Ocolor, depth + 1, False, color, moves)
                 if maxValue < result:
                     print(bestMove)
-                    bestMove = [rowC, colC]
+                    bestMove = [listOfMoves[move][0], listOfMoves[move][1]]
                 maxValue = max(maxValue, result)
             return maxValue
     else:
         minValue = 99999
         listOfMoves = get_valid_moves(board, color)
-        newlistOfMoves  = copy.deepcopy(listOfMoves)
-        print('This is our min board:', board)
+        print("color min:", color)
+        for move in range(len(moves)):
+            (rowC, colC) = transform_coords(moves[move][0], moves[move][1])
+            cColor = PieceColor.NONE
+            board.set_piece(rowC, colC, cColor)
+        print('This is our min board: \n', board)
         print('This is its valid moves:', listOfMoves)
         if depth == goalDepth:
             return eval_func(board, color)
         else:
-            for move in range(len(newlistOfMoves)):
-                currentMove = newlistOfMoves[move]
-                (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-                newBoard =  copy.deepcopy(board)
-                newBoard.set_piece(rowC, colC, color)
+            for move in range(len(listOfMoves)):
                 print('newBoard Position(min): row', rowC, 'col', colC, 'Board:')
-                print(newBoard)
-                result = min_max_algo(newBoard, Ocolor, depth + 1, True, color)
+                moves.append([listOfMoves[move][0], listOfMoves[move][1], color])
+                result = min_max_algo(board, Ocolor, depth + 1, True, color, moves)
                 if minValue > result:
                     print(bestMove)
-                    bestMove = [rowC, colC]
+                    bestMove = [listOfMoves[move][0], listOfMoves[move][1]]
                 minValue = min(minValue, result)
         return minValue
 
@@ -147,7 +161,7 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 first = True #flag used to get the color of the player
 #while the game is being played
 while True:
-   while os.path.isfile("./referee/player1.py.go"): #get the file the referee made
+   while os.path.isfile("./referee/player1.go"): #get the file the referee made
        if first:
            #if nothing in the move file, the player's color is blue
            if os.stat("./referee/move_file").st_size==0:
@@ -198,7 +212,7 @@ while True:
 
        #get possible moves and put those coordinates in list
        newBoard = copy.deepcopy(game.board)
-       min_max_algo(newBoard, color, 0, True, OColor)
+       min_max_algo(newBoard, color, 0, True, OColor, [])
        print("Initial Board:\n{b}\n".format(b=game.board))
 
        f = open("./referee/move_file", 'a')  # open the move file to make a move
@@ -208,5 +222,5 @@ while True:
        stringToWrite = ('Player1 ' + str(bestMove[1]) + " " + str(bestMove[0])+ "\n")
        f.write(stringToWrite)  # write the desired move in the move file
        f.close()  # close the file until need to wirte to it again
-       game.board.set_piece(bestMove[0], bestMove[1], color) #update our board
+       game.board.set_piece(bestMove[0], str(bestMove[1]), color) #update our board
        time.sleep(1);

@@ -14,52 +14,49 @@ ourPlayer = PieceColor.NONE
 
 def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor, alpha: int, beta: int) -> float:
     global bestMove
+    if depth == goalDepth:
+        return eval_func(board, color)
     if maxPlayer:
         maxValue = -99999
         listOfMoves = get_valid_moves(board, color)
-        if depth == goalDepth:
-            return eval_func(board, color)
-        else:
-            for move in range(len(listOfMoves)):
-                result = eval_func(board, color)
-                currentMove = listOfMoves[move]
-                (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-                board.set_piece(rowC, colC, color)
-                newBoard =  copy.deepcopy(board)
-                board.set_piece(rowC, colC, PieceColor.NONE)
-                print('newBoard Position: row', rowC, 'col', colC, 'Board:')
-                # print(newBoard)
-                min_max_algo(newBoard, Ocolor, depth + 1, False, color, alpha, beta)
-                if (maxValue < result) and depth == 0:
-                    # print(bestMove)
-                    bestMove = [rowC, colC]
-                alpha = max(alpha, result)
-                if beta <= alpha:
-                    break
-                maxValue = max(maxValue, result)
-            return maxValue
+        for move in range(len(listOfMoves)):
+            result = eval_func(board, color)
+            currentMove = listOfMoves[move]
+            (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+            board.set_piece(rowC, colC, color)
+            newBoard =  copy.deepcopy(board)
+            board.set_piece(rowC, colC, PieceColor.NONE)
+            print('newBoard Position: row', rowC, 'col', colC, 'Board:')
+            # print(newBoard)
+            min_max_algo(newBoard, Ocolor, depth + 1, False, color, alpha, beta)
+            if (maxValue < result) and depth == 0:
+                # print(bestMove)
+                bestMove = [rowC, colC]
+            alpha = max(alpha, result)
+            if beta <= alpha:
+                break
+            maxValue = max(maxValue, result)
+        return maxValue
     else:
         minValue = 99999
         listOfMoves = get_valid_moves(board, color)
-        if depth == goalDepth:
-            return eval_func(board, color)
-        else:
-            for move in range(len(listOfMoves)):
-                result = eval_func(board, color)
-                currentMove = listOfMoves[move]
-                (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-                board.set_piece(rowC, colC, color)
-                newBoard =  copy.deepcopy(board)
-                board.set_piece(rowC, colC, PieceColor.NONE)
-                min_max_algo(newBoard, Ocolor, depth + 1, True, color, alpha, beta)
-                if (minValue > result) and depth == 0:
-                    # print(bestMove)
-                    bestMove = [rowC, colC]
-                beta = min(beta, result)
-                if beta <= alpha:
-                    break
-                minValue = min(minValue, result)
-        return minValue
+
+        for move in range(len(listOfMoves)):
+            result = eval_func(board, color)
+            currentMove = listOfMoves[move]
+            (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+            board.set_piece(rowC, colC, color)
+            newBoard =  copy.deepcopy(board)
+            board.set_piece(rowC, colC, PieceColor.NONE)
+            min_max_algo(newBoard, Ocolor, depth + 1, True, color, alpha, beta)
+            if (minValue > result) and depth == 0:
+                # print(bestMove)
+                bestMove = [rowC, colC]
+            beta = min(beta, result)
+            if beta <= alpha:
+                break
+            minValue = min(minValue, result)
+    return minValue
 
 
 def get_valid_moves(board: Board, color: PieceColor) -> list:
@@ -86,6 +83,8 @@ def get_valid_moves(board: Board, color: PieceColor) -> list:
 def eval_func(board: Board, colorE: PieceColor) -> float:
     evalF = 0
     numF = 0
+    orangep = 0
+    bluep = 0
     """
     Get opponent of given player
     :param player: Board currently being played
@@ -97,8 +96,11 @@ def eval_func(board: Board, colorE: PieceColor) -> float:
             '''factor 1: number of pieces for each color are a consideration to winning an othello game'''
             if piece == PieceColor.ORANGE:
                 evalF += .02
+                orangep += 1
             if piece == PieceColor.BLUE:
                 evalF -= .02
+                bluep += 1
+
             '''factor 2: corner pieces are crucial to winning an  othello game'''
             if (piece == PieceColor.ORANGE) and (((rowE == 1) and (col == 1)) or
                                                  ((rowE == 8) and (col == 1)) or
@@ -115,11 +117,25 @@ def eval_func(board: Board, colorE: PieceColor) -> float:
     numOfPieces = 64 - numF
     '''factor 3: number of available moves are important to winning an othello game'''
     if colorE == PieceColor.ORANGE:
-        evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+        evalF += get_valid_moves(board, colorE).__sizeof__() / (numOfPieces * 100)
     if colorE == PieceColor.BLUE:
-        evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+        evalF -= get_valid_moves(board, colorE).__sizeof__() / (numOfPieces * 100)
     if ourPlayer==PieceColor.BLUE:
         evalF=-evalF
+    #This is our utility function
+    if numOfPieces == 64:
+        if bluep > orangep:
+            if ourPlayer== PieceColor.ORANGE:
+                evalF = -1000000
+            else:
+                evalF = 1000000
+        if bluep < orangep:
+            if ourPlayer== PieceColor.ORANGE:
+                evalF = 1000000
+            else:
+                evalF = -1000000
+        if bluep == orangep:
+            evalF = 0
     return evalF
 
 #board = [PieceColor.NONE] * 64

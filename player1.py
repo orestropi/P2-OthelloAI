@@ -17,9 +17,10 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
         maxValue = -99999
         listOfMoves = get_valid_moves(board, color)
         if depth == goalDepth:
-            return eval_func(board, color)
+            return eval_func(board, color, OColor)
         else:
             for move in range(len(listOfMoves)):
+                result = eval_func(board, color, OColor)
                 currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 board.set_piece(rowC, colC, color)
@@ -27,28 +28,35 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
                 board.set_piece(rowC, colC, PieceColor.NONE)
                 print('newBoard Position: row', rowC, 'col', colC, 'Board:')
                 print(newBoard)
-                result = min_max_algo(newBoard, Ocolor, depth + 1, False, color)
+                min_max_algo(newBoard, Ocolor, depth + 1, False, color, alpha, beta)
                 if (maxValue < result) and depth == 0:
                     print(bestMove)
                     bestMove = [rowC, colC]
+                alpha = max(alpha, result)
+                if beta <= alpha:
+                    break
                 maxValue = max(maxValue, result)
             return maxValue
     else:
         minValue = 99999
         listOfMoves = get_valid_moves(board, color)
         if depth == goalDepth:
-            return eval_func(board, color)
+            return eval_func(board, color, OColor)
         else:
             for move in range(len(listOfMoves)):
+                result = eval_func(board, color, OColor)
                 currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 board.set_piece(rowC, colC, color)
                 newBoard =  copy.deepcopy(board)
                 board.set_piece(rowC, colC, PieceColor.NONE)
-                result = min_max_algo(newBoard, Ocolor, depth + 1, True, color)
+                min_max_algo(newBoard, Ocolor, depth + 1, True, color, alpha, beta)
                 if (minValue > result) and depth == 0:
                     print(bestMove)
                     bestMove = [rowC, colC]
+                beta = min(beta, result)
+                if beta <= alpha:
+                    break
                 minValue = min(minValue, result)
         return minValue
 
@@ -74,7 +82,7 @@ def get_valid_moves(board: Board, color: PieceColor) -> list:
                moves.append([row,col])
    return moves
 
-def eval_func(board: Board, colorE: PieceColor) -> float:
+def eval_func(board: Board, colorE: PieceColor, colorO: PieceColor) -> float:
     evalF = 0
     numF = 0
     """
@@ -86,31 +94,31 @@ def eval_func(board: Board, colorE: PieceColor) -> float:
         for col in range(8):
             piece = Board._get_piece(board, rowE, col)
             '''factor 1: number of pieces for each color are a consideration to winning an othello game'''
-            if piece == PieceColor.ORANGE:
+            if piece == colorE:
                 evalF += .02
-            if piece == PieceColor.BLUE:
+            if piece == colorO:
                 evalF -= .02
             '''factor 2: corner pieces are crucial to winning an  othello game'''
-            if (piece == PieceColor.ORANGE) and (((rowE == 1) and (col == 1)) or
-                                                 ((rowE == 8) and (col == 1)) or
-                                                 ((rowE == 1) and (col == 8)) or
-                                                 ((rowE == 8) and (col == 8))):
-                evalF += 5
-            if (piece == PieceColor.BLUE) and (((rowE == 1) and (col == 1)) or
-                                               ((rowE == 8) and (col == 1)) or
-                                               ((rowE == 1) and (col == 8)) or
-                                               ((rowE == 8) and (col == 8))):
-                evalF -= 5
-            if (piece == PieceColor.NONE):
-                numF += 1
-
-    numOfPieces = 64 - numF
-
-    '''factor 3: number of available moves are important to winning an othello game'''
-    if colorE == PieceColor.ORANGE:
-        evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
-    if colorE == PieceColor.BLUE:
-        evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+    #         if (piece == PieceColor.ORANGE) and (((rowE == 1) and (col == 1)) or
+    #                                              ((rowE == 8) and (col == 1)) or
+    #                                              ((rowE == 1) and (col == 8)) or
+    #                                              ((rowE == 8) and (col == 8))):
+    #             evalF += 5
+    #         if (piece == PieceColor.BLUE) and (((rowE == 1) and (col == 1)) or
+    #                                            ((rowE == 8) and (col == 1)) or
+    #                                            ((rowE == 1) and (col == 8)) or
+    #                                            ((rowE == 8) and (col == 8))):
+    #             evalF -= 5
+    #         if (piece == PieceColor.NONE):
+    #             numF += 1
+    #
+    # numOfPieces = 64 - numF
+    #
+    # '''factor 3: number of available moves are important to winning an othello game'''
+    # if colorE == PieceColor.ORANGE:
+    #     evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+    # if colorE == PieceColor.BLUE:
+    #     evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
 
     return evalF
 
@@ -188,7 +196,7 @@ while True:
 
        #get possible moves and put those coordinates in list
        newBoard = copy.deepcopy(game.board)
-       min_max_algo(newBoard, color, 0, True, OColor)
+       min_max_algo(newBoard, color, 0, True, OColor, -1000000, 1000000)
        print("Initial Board:\n{b}\n".format(b=game.board))
 
        f = open("./referee/move_file", 'a')  # open the move file to make a move
@@ -196,8 +204,6 @@ while True:
        #print("GroupX ", str(topMove[1]), " ", str(row))
        #f.write("GroupX E 3")
        if Board.has_valid_move(game.board, color):
-           print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-
            stringToWrite = ('Player1 ' + str(bestMove[1]) + " " + str(bestMove[0]) + "\n")
            f.write(stringToWrite)  # write the desired move in the move file
            f.close()  # close the file until need to wirte to it again
@@ -205,7 +211,6 @@ while True:
            time.sleep(1);
 
        else:
-           print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
            stringToWrite = ('Player1 ' + "P " + "3\n")
            f.write(stringToWrite)  # write the desired move in the move file
            f.close()  # close the file until need to wirte to it again

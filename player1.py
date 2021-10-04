@@ -30,7 +30,7 @@ def min_max_algo(board: Board, color: PieceColor, depth: int, goalDepth: int, ma
                if (maxValue <= result) and depth == 0:
                    # print(bestMove)
                    bestMove = [rowC, colC]
-                   print(bestMove)
+
                maxValue = max(maxValue, result)
                alpha = max(alpha, result)
                if beta <= alpha:
@@ -255,14 +255,16 @@ while True:
 
        #get possible moves and put those coordinates in list
        newBoard = copy.deepcopy(game.board)
+       t = time.time()
+       num =0
 
-
-       # while (time.time() - t < 5):
-       #      print(time.time() - t)
-       #      min_max_algo(newBoard, color, 0, num, True, OColor, -1000000, 1000000)
-       #      currentMove = copy.deepcopy(bestMove)
-       #      num+=1
-       min_max_algo(game.board, color, 0, 5, True, OColor, -100000, 100000)
+       while (time.time() - t < 2):
+            print(time.time() - t)
+            print(num)
+            currentMove = copy.deepcopy(bestMove)
+            min_max_algo(newBoard, color, 0, num, True, OColor, -1000000, 1000000)
+            num+=1
+       # min_max_algo(game.board, color, 0, 5, True, OColor, -100000, 100000)
        # print("Initial Board:\n{b}\n".format(b=game.board))
 
        f = open("./referee/move_file", 'a')  # open the move file to make a move
@@ -273,12 +275,12 @@ while True:
 
        if Board.has_valid_move(game.board, color):
 
-           stringToWrite = ('Player1 ' + str(bestMove[1]) + " " + str(bestMove[0]) + "\n")
+           stringToWrite = ('Player1 ' + str(currentMove[1]) + " " + str(currentMove[0]) + "\n")
            f.write(stringToWrite)  # write the desired move in the move file
            f.close()  # close the file until need to wirte to it again
-           print("String to write ", stringToWrite)
-           print(game.board)
-           game.board.set_piece(bestMove[0], bestMove[1], color)  # update our board
+           # print("String to write ", stringToWrite)
+           # print(game.board)
+           game.board.set_piece(currentMove[0], currentMove[1], color)  # update our board
            bestMove = None
            time.sleep(0.5);
 

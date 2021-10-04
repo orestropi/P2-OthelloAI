@@ -7,56 +7,57 @@ import copy
 
 depth = 0
 maxPlayer = True
-goalDepth = 6
+goalDepth = 3
 bestMove = []
 ourPlayer = PieceColor.NONE
 
 
 def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor, alpha: int, beta: int) -> float:
-    global bestMove
-    if depth == goalDepth:
-        return eval_func(board, color)
-    if maxPlayer:
-        maxValue = -99999
-        listOfMoves = get_valid_moves(board, color)
-        for move in range(len(listOfMoves)):
-            result = eval_func(board, color)
-            currentMove = listOfMoves[move]
-            (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-            board.set_piece(rowC, colC, color)
-            newBoard =  copy.deepcopy(board)
-            board.set_piece(rowC, colC, PieceColor.NONE)
-            print('newBoard Position: row', rowC, 'col', colC, 'Board:')
-            # print(newBoard)
-            min_max_algo(newBoard, Ocolor, depth + 1, False, color, alpha, beta)
-            if (maxValue < result) and depth == 0:
-                # print(bestMove)
-                bestMove = [rowC, colC]
-            alpha = max(alpha, result)
-            if beta <= alpha:
-                break
-            maxValue = max(maxValue, result)
-        return maxValue
-    else:
-        minValue = 99999
-        listOfMoves = get_valid_moves(board, color)
-
-        for move in range(len(listOfMoves)):
-            result = eval_func(board, color)
-            currentMove = listOfMoves[move]
-            (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
-            board.set_piece(rowC, colC, color)
-            newBoard =  copy.deepcopy(board)
-            board.set_piece(rowC, colC, PieceColor.NONE)
-            min_max_algo(newBoard, Ocolor, depth + 1, True, color, alpha, beta)
-            if (minValue > result) and depth == 0:
-                # print(bestMove)
-                bestMove = [rowC, colC]
-            beta = min(beta, result)
-            if beta <= alpha:
-                break
-            minValue = min(minValue, result)
-    return minValue
+   global bestMove
+   if maxPlayer:
+       maxValue = -99999
+       listOfMoves = get_valid_moves(board, color)
+       if depth == goalDepth:
+           return eval_func(board, color)
+       else:
+           for move in range(len(listOfMoves)):
+               currentMove = listOfMoves[move]
+               (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+               board.set_piece(rowC, colC, color)
+               newBoard =  copy.deepcopy(board)
+               board.set_piece(rowC, colC, PieceColor.NONE)
+               print('newBoard Position: row', rowC, 'col', colC, 'Board:')
+               print(newBoard)
+               result = min_max_algo(newBoard, Ocolor, depth + 1, False, color, alpha, beta)
+               if (maxValue < result) and depth == 0:
+                   print(bestMove)
+                   bestMove = [rowC, colC]
+               maxValue = max(maxValue, result)
+               # alpha = max(alpha, result)
+               # if beta <= alpha:
+               #     break
+           return maxValue
+   else:
+       minValue = 99999
+       listOfMoves = get_valid_moves(board, color)
+       if depth == goalDepth:
+           return eval_func(board, color)
+       else:
+           for move in range(len(listOfMoves)):
+               currentMove = listOfMoves[move]
+               (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
+               board.set_piece(rowC, colC, color)
+               newBoard =  copy.deepcopy(board)
+               board.set_piece(rowC, colC, PieceColor.NONE)
+               result = min_max_algo(newBoard, Ocolor, depth + 1, True, color, alpha, beta)
+               if (minValue > result) and depth == 0:
+                   print(bestMove)
+                   bestMove = [rowC, colC]
+               minValue = min(minValue, result)
+               # beta = min(beta, result)
+               # if beta <= alpha:
+               #     break
+       return minValue
 
 
 def get_valid_moves(board: Board, color: PieceColor) -> list:

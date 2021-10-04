@@ -1,14 +1,15 @@
 import os.path
 import sys
-from Board import PieceColor, Board, transform_coords
+from Board import PieceColor, Board, transform_coords, interpret_coords, out_of_bounds
 from referee.Game import Game
 import time
 import copy
 
 depth = 0
 maxPlayer = True
-goalDepth = 1
+goalDepth = 6
 bestMove = []
+ourPlayer = PieceColor.NONE
 
 
 def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor, alpha: int, beta: int) -> float:
@@ -17,20 +18,20 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
         maxValue = -99999
         listOfMoves = get_valid_moves(board, color)
         if depth == goalDepth:
-            return eval_func(board, color, OColor)
+            return eval_func(board, color)
         else:
             for move in range(len(listOfMoves)):
-                result = eval_func(board, color, OColor)
+                result = eval_func(board, color)
                 currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 board.set_piece(rowC, colC, color)
                 newBoard =  copy.deepcopy(board)
                 board.set_piece(rowC, colC, PieceColor.NONE)
                 print('newBoard Position: row', rowC, 'col', colC, 'Board:')
-                print(newBoard)
+                # print(newBoard)
                 min_max_algo(newBoard, Ocolor, depth + 1, False, color, alpha, beta)
                 if (maxValue < result) and depth == 0:
-                    print(bestMove)
+                    # print(bestMove)
                     bestMove = [rowC, colC]
                 alpha = max(alpha, result)
                 if beta <= alpha:
@@ -41,10 +42,10 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
         minValue = 99999
         listOfMoves = get_valid_moves(board, color)
         if depth == goalDepth:
-            return eval_func(board, color, OColor)
+            return eval_func(board, color)
         else:
             for move in range(len(listOfMoves)):
-                result = eval_func(board, color, OColor)
+                result = eval_func(board, color)
                 currentMove = listOfMoves[move]
                 (rowC, colC) = transform_coords(currentMove[0], currentMove[1])
                 board.set_piece(rowC, colC, color)
@@ -52,7 +53,7 @@ def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor
                 board.set_piece(rowC, colC, PieceColor.NONE)
                 min_max_algo(newBoard, Ocolor, depth + 1, True, color, alpha, beta)
                 if (minValue > result) and depth == 0:
-                    print(bestMove)
+                    # print(bestMove)
                     bestMove = [rowC, colC]
                 beta = min(beta, result)
                 if beta <= alpha:
@@ -82,7 +83,7 @@ def get_valid_moves(board: Board, color: PieceColor) -> list:
                moves.append([row,col])
    return moves
 
-def eval_func(board: Board, colorE: PieceColor, colorO: PieceColor) -> float:
+def eval_func(board: Board, colorE: PieceColor) -> float:
     evalF = 0
     numF = 0
     """
@@ -94,39 +95,37 @@ def eval_func(board: Board, colorE: PieceColor, colorO: PieceColor) -> float:
         for col in range(8):
             piece = Board._get_piece(board, rowE, col)
             '''factor 1: number of pieces for each color are a consideration to winning an othello game'''
-            if piece == colorE:
+            if piece == PieceColor.ORANGE:
                 evalF += .02
-            if piece == colorO:
+            if piece == PieceColor.BLUE:
                 evalF -= .02
             '''factor 2: corner pieces are crucial to winning an  othello game'''
-    #         if (piece == PieceColor.ORANGE) and (((rowE == 1) and (col == 1)) or
-    #                                              ((rowE == 8) and (col == 1)) or
-    #                                              ((rowE == 1) and (col == 8)) or
-    #                                              ((rowE == 8) and (col == 8))):
-    #             evalF += 5
-    #         if (piece == PieceColor.BLUE) and (((rowE == 1) and (col == 1)) or
-    #                                            ((rowE == 8) and (col == 1)) or
-    #                                            ((rowE == 1) and (col == 8)) or
-    #                                            ((rowE == 8) and (col == 8))):
-    #             evalF -= 5
-    #         if (piece == PieceColor.NONE):
-    #             numF += 1
-    #
-    # numOfPieces = 64 - numF
-    #
-    # '''factor 3: number of available moves are important to winning an othello game'''
-    # if colorE == PieceColor.ORANGE:
-    #     evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
-    # if colorE == PieceColor.BLUE:
-    #     evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
-
+            if (piece == PieceColor.ORANGE) and (((rowE == 1) and (col == 1)) or
+                                                 ((rowE == 8) and (col == 1)) or
+                                                 ((rowE == 1) and (col == 8)) or
+                                                 ((rowE == 8) and (col == 8))):
+                evalF += 5
+            if (piece == PieceColor.BLUE) and (((rowE == 1) and (col == 1)) or
+                                               ((rowE == 8) and (col == 1)) or
+                                               ((rowE == 1) and (col == 8)) or
+                                               ((rowE == 8) and (col == 8))):
+                evalF -= 5
+            if (piece == PieceColor.NONE):
+                numF += 1
+    numOfPieces = 64 - numF
+    '''factor 3: number of available moves are important to winning an othello game'''
+    if colorE == PieceColor.ORANGE:
+        evalF += get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+    if colorE == PieceColor.BLUE:
+        evalF -= get_valid_moves(board, colorE).__sizeof__() / numOfPieces
+    if ourPlayer==PieceColor.BLUE:
+        evalF=-evalF
     return evalF
-
 
 #board = [PieceColor.NONE] * 64
 
 game = Game("p1", "p2")
-print("Initial Board:\n{b}\n".format(b=game.board))
+# print("Initial Board:\n{b}\n".format(b=game.board))
 # def __init__(self):
 #     """
 #     Initialize Othello board
@@ -144,7 +143,48 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 #     print("I am not full")
 first = True #flag used to get the color of the player
 #while the game is being played
+color = PieceColor.NONE
+OColor = PieceColor.NONE
 while True:
+   if os.path.isfile("./referee/end_game"):
+        with open("./referee/end_game", "r") as fp:
+            end = fp.readlines()
+            print("end:", end)
+        fp.close()
+        with open("./referee/move_file", "r") as fp:
+            # Get last non-empty line from file
+            line = ""
+            for next_line in fp.readlines():
+                if next_line.isspace():
+                    break
+                else:
+                    line = next_line
+
+                # Tokenize move
+            if not line == "":
+                tokens = line.split()
+                group_name = tokens[0]
+                col = tokens[1]
+                row = tokens[2]
+                (rowC, colC) = interpret_coords(int(tokens[2]), tokens[1])
+                # making sure it is a valid move and giving a reason why if it is not a valid move
+                # If column is P, get valid moves of Ocolor, if list greater than 0
+                if tokens[1] == 'P':
+                    valid_moves = get_valid_moves(game.board, OColor)
+                    if len(valid_moves) > 0:
+                        print("Move: {m}".format(m=line.rstrip()), " is an invalid move, tried to pass when valid move was possible")
+                # get enveloped pieces, if 0 then invalid move
+                elif len(Board._get_enveloped_pieces(game.board, rowC, colC, OColor)) == 0:
+                    print("Move: {m}".format(m=line.rstrip()), " is an invalid move, does not envelop any pieces")
+                # get piece, if color is blue or orange, invalid move
+                elif Board._get_piece(game.board, rowC, colC) == PieceColor.BLUE or Board._get_piece(game.board, rowC, colC) == PieceColor.ORANGE:
+                    print("Move: {m}".format(m=line.rstrip()), " is an invalid move, cell already occupied")
+                elif out_of_bounds(rowC, colC) == True:
+                    print("Move: {m}".format(m=line.rstrip()), " is an invalid move, out of bounds")
+                # I thinkg set piece already checks if it is a valid move, returns false if not valid move
+                # but we need to give reasons why
+
+        sys.exit(1)
    while os.path.isfile("./referee/player1.go"): #get the file the referee made
        if first:
            #if nothing in the move file, the player's color is blue
@@ -152,12 +192,14 @@ while True:
                print("I am first player")
                color = PieceColor.BLUE
                OColor = PieceColor.ORANGE
+               ourPlayer = PieceColor.BLUE
                first = False #set flag to false so do not check the color again
            #if there is already a line in the move file and the flag is still true, the player's color is orange
            else:
                print("I am second player")
                color = PieceColor.ORANGE
                OColor = PieceColor.BLUE
+               ourPlayer = PieceColor.ORANGE
                first = False
 
 
@@ -185,8 +227,26 @@ while True:
                group_name = tokens[0]
                col = tokens[1]
                row = tokens[2]
-               if tokens[1] != "P":
-                game.board.set_piece(int(row), str(col), OColor) #updates board
+               (rowC, colC) = interpret_coords(int(tokens[2]), tokens[1])
+               # making sure it is a valid move and giving a reason why if it is not a valid move
+               # If column is P, get valid moves of Ocolor, if list greater than 0
+               if tokens[1] == 'P':
+                   valid_moves = get_valid_moves(game.board, OColor)
+                   if valid_moves > 0:
+                       print("Move: {m}".format(
+                           m=line.rstrip()) + " is an invalid move, tried to pass when valid move was possible")
+               # get enveloped pieces, if 0 then invalid move
+               elif Board._get_enveloped_pieces(game.board, rowC, colC, OColor) == 0:
+                   print("Move: {m}".format(m=line.rstrip()), " is an invalid move, does not envelop any pieces")
+               # get piece, if color is blue or orange, invalid move
+               elif Board._get_piece(game.board, rowC, colC) == (PieceColor.BLUE or PieceColor.ORANGE):
+                   print("Move: {m}".format(m=line.rstrip()),  " is an invalid move, cell already occupied")
+               elif out_of_bounds(rowC, colC) == True:
+                   print("Move: {m}".format(m=line.rstrip()), " is an invalid move, out of bounds")
+               # I thinkg set piece already checks if it is a valid move, returns false if not valid move
+               # but we need to give reasons why
+               else:
+                   game.board._set_piece(rowC, colC, OColor)  # updates board
 
 
        fp.close()
@@ -197,7 +257,7 @@ while True:
        #get possible moves and put those coordinates in list
        newBoard = copy.deepcopy(game.board)
        min_max_algo(newBoard, color, 0, True, OColor, -1000000, 1000000)
-       print("Initial Board:\n{b}\n".format(b=game.board))
+       # print("Initial Board:\n{b}\n".format(b=game.board))
 
        f = open("./referee/move_file", 'a')  # open the move file to make a move
        # write the desired move in the move file

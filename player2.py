@@ -7,7 +7,7 @@ import copy
 
 depth = 0
 maxPlayer = True
-goalDepth = 3
+goalDepth = 1
 bestMove = []
 
 

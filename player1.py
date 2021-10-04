@@ -7,11 +7,11 @@ import copy
 
 depth = 0
 maxPlayer = True
-goalDepth = 2
+goalDepth = 1
 bestMove = []
 
 
-def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor) -> float:
+def min_max_algo(board: Board, color: PieceColor, depth, maxPlayer: bool, Ocolor: PieceColor, alpha: int, beta: int) -> float:
     global bestMove
     if maxPlayer:
         maxValue = -99999
@@ -137,7 +137,7 @@ print("Initial Board:\n{b}\n".format(b=game.board))
 first = True #flag used to get the color of the player
 #while the game is being played
 while True:
-   while os.path.isfile("./referee/player1.py.go"): #get the file the referee made
+   while os.path.isfile("./referee/player1.go"): #get the file the referee made
        if first:
            #if nothing in the move file, the player's color is blue
            if os.stat("./referee/move_file").st_size==0:
@@ -177,8 +177,8 @@ while True:
                group_name = tokens[0]
                col = tokens[1]
                row = tokens[2]
-
-               game.board.set_piece(int(row), str(col), OColor) #updates board
+               if tokens[1] != "P":
+                game.board.set_piece(int(row), str(col), OColor) #updates board
 
 
        fp.close()
@@ -195,8 +195,20 @@ while True:
        # write the desired move in the move file
        #print("GroupX ", str(topMove[1]), " ", str(row))
        #f.write("GroupX E 3")
-       stringToWrite = ('Player1 ' + str(bestMove[1]) + " " + str(bestMove[0])+ "\n")
-       f.write(stringToWrite)  # write the desired move in the move file
-       f.close()  # close the file until need to wirte to it again
-       game.board.set_piece(bestMove[0], bestMove[1], color) #update our board
-       time.sleep(1);
+       if Board.has_valid_move(game.board, color):
+           print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+
+           stringToWrite = ('Player1 ' + str(bestMove[1]) + " " + str(bestMove[0]) + "\n")
+           f.write(stringToWrite)  # write the desired move in the move file
+           f.close()  # close the file until need to wirte to it again
+           game.board.set_piece(bestMove[0], bestMove[1], color)  # update our board
+           time.sleep(1);
+
+       else:
+           print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
+           stringToWrite = ('Player1 ' + "P " + "3\n")
+           f.write(stringToWrite)  # write the desired move in the move file
+           f.close()  # close the file until need to wirte to it again
+           time.sleep(1);
+
+

@@ -51,7 +51,7 @@ first = True #flag used to get the color of the player
 
 #while the game is being played
 while True:
-    while os.path.isfile("./referee/player1.py.go"): #get the file the referee made
+    while os.path.isfile("./referee/agony.py.go"): #get the file the referee made
         #there is a function get_color i think we can use
         if first:
             #if nothing in the move file, the player's color is blue

@@ -202,7 +202,7 @@ while True:
                 # get piece, if color is blue or orange, invalid move
 
         sys.exit(1)
-   while os.path.isfile("./referee/player1.go"): #get the file the referee made
+   while os.path.isfile("./referee/agony.go"): #get the file the referee made
        if first:
            #if nothing in the move file, the player's color is blue
            if os.stat("./referee/move_file").st_size==0:
@@ -259,8 +259,8 @@ while True:
        num =0
 
        while (time.time() - t < 2):
-            print(time.time() - t)
-            print(num)
+            # print(time.time() - t)
+            # print(num)
             currentMove = copy.deepcopy(bestMove)
             min_max_algo(newBoard, color, 0, num, True, OColor, -1000000, 1000000)
             num+=1
@@ -275,7 +275,7 @@ while True:
 
        if Board.has_valid_move(game.board, color):
 
-           stringToWrite = ('Player1 ' + str(currentMove[1]) + " " + str(currentMove[0]) + "\n")
+           stringToWrite = ('agony ' + str(currentMove[1]) + " " + str(currentMove[0]) + "\n")
            f.write(stringToWrite)  # write the desired move in the move file
            f.close()  # close the file until need to wirte to it again
            # print("String to write ", stringToWrite)
@@ -286,7 +286,7 @@ while True:
 
        else:
 
-           stringToWrite = ('Player1 ' + "P " + "3\n")
+           stringToWrite = ('agony ' + "P " + "3\n")
            f.write(stringToWrite)  # write the desired move in the move file
            f.close()  # close the file until need to wirte to it again
            time.sleep(0.5);
